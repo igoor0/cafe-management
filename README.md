@@ -1,1 +1,1 @@
-vnjkfdkjvdfCafe management web application made for a Computer Science diploma thesis.
+Cafe management web application made for a Computer Science diploma thesis.
