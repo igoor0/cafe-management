@@ -7,7 +7,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uni.cafemanagement.config.JwtService;
 import uni.cafemanagement.exception.ApiRequestException;
+import uni.simulatedpos.model.Employee;
+import uni.cafemanagement.model.Manager;
 import uni.cafemanagement.model.User;
+import uni.cafemanagement.repository.ManagerRepository;
 import uni.cafemanagement.repository.UserRepository;
 
 @Service
@@ -18,6 +21,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final ManagerRepository managerRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
 
@@ -30,16 +34,38 @@ public class AuthenticationService {
         user.setLastName(request.getLastname());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Zapis użytkownika do bazy danych
         userRepository.save(user);
 
-        // Generowanie tokenu JWT
         var jwtToken = jwtService.generateToken(
                 user,
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().toString());
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
+
+    public AuthenticationResponse registerManager(ManagerRegisterRequest request) {
+        if (managerRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ApiRequestException("Manager with email " + request.getEmail() + " already exists");
+        }
+        Manager manager = new Manager();
+        manager.setEmail(request.getEmail());
+        manager.setFirstName(request.getFirstname());
+        manager.setLastName(request.getLastname());
+        manager.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        //TODO dodac pola odpowiednie dla managera
+        userRepository.save(manager);
+
+        var jwtToken = jwtService.generateToken(
+                manager,
+                manager.getId(),
+                manager.getFirstName(),
+                manager.getLastName(),
+                manager.getRole().toString());
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -84,5 +110,6 @@ public class AuthenticationService {
             throw new ApiRequestException("Old password is incorrect");
         }
     }
+
 
 }

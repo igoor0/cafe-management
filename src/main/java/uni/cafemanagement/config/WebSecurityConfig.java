@@ -36,8 +36,9 @@ public class WebSecurityConfig {
         httpSecurity.authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers("swagger-ui/**").permitAll()
+                                .requestMatchers("v3/api-docs/**").permitAll()
+                                .requestMatchers("v3/**").permitAll()
                                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/api/management/**").hasAnyRole("ADMIN", "MANAGER")
                                 .anyRequest()
