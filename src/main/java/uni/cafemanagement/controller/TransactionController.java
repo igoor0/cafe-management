@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uni.cafemanagement.model.TransactionReport;
 import uni.simulatedpos.model.Transaction;
+import uni.simulatedpos.model.TransactionProduct;
 import uni.simulatedpos.service.TransactionService;
 
 import java.time.LocalDate;
@@ -17,6 +18,15 @@ public class TransactionController {
 
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+    @PostMapping("/process")
+    public String processTransaction(@RequestBody Transaction transaction) {
+        try {
+            transactionService.processTransaction(transaction);
+            return "Transaction processed successfully!";
+        } catch (RuntimeException e) {
+            return "Transaction failed: " + e.getMessage();
+        }
     }
 
     @GetMapping

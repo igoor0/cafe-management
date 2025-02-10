@@ -21,7 +21,7 @@ public class InventoryProduct {
     private ProductCategory category;
     private double price;
     private boolean isCountable;
-    private int quantity;
+    private double quantity;
     private double weightInGrams;
 
     public InventoryProduct(String name, String description, ProductCategory category, double price, double weightInGrams) {

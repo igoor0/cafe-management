@@ -4,9 +4,12 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uni.cafemanagement.exception.ApiRequestException;
+import uni.cafemanagement.model.InventoryProduct;
 import uni.cafemanagement.model.TransactionReport;
+import uni.cafemanagement.repository.InventoryProductRepository;
 import uni.simulatedpos.model.*;
 import uni.simulatedpos.repository.EmployeeRepository;
+import uni.simulatedpos.repository.MenuProductRepository;
 import uni.simulatedpos.repository.TransactionRepository;
 
 import java.time.LocalDate;
@@ -16,11 +19,63 @@ import java.util.List;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final EmployeeRepository employeeRepository;
+    private final MenuProductRepository menuProductRepository;
+    private final InventoryProductRepository inventoryProductRepository;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, EmployeeRepository employeeRepository) {
+    public TransactionService(TransactionRepository transactionRepository, EmployeeRepository employeeRepository, MenuProductRepository menuProductRepository, InventoryProductRepository inventoryProductRepository) {
         this.transactionRepository = transactionRepository;
         this.employeeRepository = employeeRepository;
+        this.menuProductRepository = menuProductRepository;
+        this.inventoryProductRepository = inventoryProductRepository;
+    }
+
+    public void processTransaction(Transaction transaction) {
+        for (TransactionProduct transactionProduct : transaction.getProducts()) {
+            MenuProduct menuProduct = menuProductRepository.findByName(transactionProduct.getName())
+                    .orElseThrow(() -> new RuntimeException("MenuProduct not found"));
+
+            for (MenuProductIngredient ingredient : menuProduct.getIngredients()) {
+                InventoryProduct inventoryProduct = ingredient.getInventoryProduct();
+                int orderedQuantity = transactionProduct.getQuantity();
+
+                if (inventoryProduct.isCountable()) {
+                    double newQuantity = inventoryProduct.getQuantity() - (ingredient.getQuantity() * orderedQuantity);
+                    if (newQuantity < 0) {
+                        throw new RuntimeException("Not enough " + inventoryProduct.getName() + " in stock.");
+                    }
+                    inventoryProduct.setQuantity(newQuantity);
+                } else {
+                    double newWeight = inventoryProduct.getWeightInGrams() - (ingredient.getQuantity() * orderedQuantity);
+                    if (newWeight < 0) {
+                        throw new RuntimeException("Not enough " + inventoryProduct.getName() + " in stock.");
+                    }
+                    inventoryProduct.setWeightInGrams(newWeight);
+                }
+
+                inventoryProductRepository.save(inventoryProduct);
+            }
+        }
+
+        // Zapisz transakcję
+        transactionRepository.save(transaction);
+    }
+
+    private boolean isIngredientAvailable(InventoryProduct inventoryProduct, double requiredQuantity) {
+        if (inventoryProduct.isCountable()) {
+            return inventoryProduct.getQuantity() >= requiredQuantity;
+        } else {
+            return inventoryProduct.getWeightInGrams() >= requiredQuantity;
+        }
+    }
+
+    private void deductInventory(InventoryProduct inventoryProduct, double usedQuantity) {
+        if (inventoryProduct.isCountable()) {
+            inventoryProduct.setQuantity(inventoryProduct.getQuantity() - (int) usedQuantity);
+        } else {
+            inventoryProduct.setWeightInGrams(inventoryProduct.getWeightInGrams() - usedQuantity);
+        }
+        inventoryProductRepository.save(inventoryProduct);
     }
 
     public List<Transaction> getAllTransactions() {

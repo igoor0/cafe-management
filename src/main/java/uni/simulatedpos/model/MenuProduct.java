@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -20,6 +22,8 @@ public class MenuProduct {
     private MenuProductCategory category;
     private double price;
     private int quantity;
+    @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MenuProductIngredient> ingredients;
 
     public MenuProduct(String name, String description, MenuProductCategory category, double price, int quantity) {
         this.name = name;
