@@ -1,11 +1,14 @@
 package uni.cafemanagement.service;
 
 import org.springframework.stereotype.Service;
+import uni.cafemanagement.dto.ProductCategoryDTO;
 import uni.cafemanagement.exception.ApiRequestException;
+import uni.cafemanagement.mapper.ProductCategoryMapper;
 import uni.cafemanagement.model.ProductCategory;
 import uni.cafemanagement.repository.ProductCategoryRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductCategoryService {
@@ -15,19 +18,26 @@ public class ProductCategoryService {
         this.productCategoryRepository = productCategoryRepository;
     }
 
-    public List<ProductCategory> getAllCategories() {
-        return productCategoryRepository.findAll();
+    public List<ProductCategoryDTO> getAllCategories() {
+        List<ProductCategory> categories = productCategoryRepository.findAll();
+        return categories.stream()
+                .map(ProductCategoryMapper.MAPPER::productCategoryToProductCategoryDTO)
+                .collect(Collectors.toList());
     }
 
-    public ProductCategory createCategory(ProductCategory productCategory) {
-        return productCategoryRepository.save(productCategory);
+    public ProductCategoryDTO createCategory(ProductCategoryDTO productCategoryDTO) {
+        ProductCategory productCategory = ProductCategoryMapper.MAPPER.productCategoryDTOToProductCategory(productCategoryDTO);
+        ProductCategory savedCategory = productCategoryRepository.save(productCategory);
+        return ProductCategoryMapper.MAPPER.productCategoryToProductCategoryDTO(savedCategory);
     }
 
-    public ProductCategory updateCategory(Long id, ProductCategory productCategory) {
+
+    public ProductCategoryDTO updateCategory(Long id, ProductCategoryDTO productCategoryDTO) {
         ProductCategory existingCategory = productCategoryRepository.findById(id)
                 .orElseThrow(() -> new ApiRequestException("Category not found with ID: " + id));
-        existingCategory.setName(productCategory.getName());
-        return productCategoryRepository.save(existingCategory);
+        existingCategory.setName(productCategoryDTO.getName());
+        ProductCategory updatedCategory = productCategoryRepository.save(existingCategory);
+        return ProductCategoryMapper.MAPPER.productCategoryToProductCategoryDTO(updatedCategory);
     }
 
     public void deleteCategory(Long id) {

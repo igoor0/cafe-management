@@ -1,10 +1,8 @@
 package uni.cafemanagement.controller;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import uni.cafemanagement.model.TransactionReport;
 import uni.simulatedpos.model.Transaction;
-import uni.simulatedpos.model.TransactionProduct;
 import uni.simulatedpos.service.TransactionService;
 
 import java.time.LocalDate;
@@ -16,53 +14,38 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
-    @PostMapping("/process")
-    public String processTransaction(@RequestBody Transaction transaction) {
-        try {
-            transactionService.processTransaction(transaction);
-            return "Transaction processed successfully!";
-        } catch (RuntimeException e) {
-            return "Transaction failed: " + e.getMessage();
-        }
-    }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public List<Transaction> getAllTransactions() {
+        return transactionService.getAllTransactions();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.getTransactionById(id));
+    public Transaction getTransactionById(@PathVariable Long id) {
+        return transactionService.getTransactionById(id);
     }
 
-    @GetMapping("/generate-report")
-    public ResponseEntity<TransactionReport> getGeneralTransactionReport() {
-        return ResponseEntity.ok(transactionService.generateGeneralReport());
+    @GetMapping("/date")
+    public List<Transaction> getTransactionsByDate(@RequestParam("date") String date) {
+        LocalDate parsedDate = LocalDate.parse(date);
+        return transactionService.getTransactionsByDate(parsedDate);
     }
 
-    @GetMapping("/generate-report/daily")
-    public ResponseEntity<TransactionReport> getDailyTransactionReport() {
-        return ResponseEntity.ok(transactionService.generateDailyReport());
+    @GetMapping("/date-range")
+    public List<Transaction> getTransactionsByDateRange(@RequestParam("startDate") String startDate,
+                                                        @RequestParam("endDate") String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        return transactionService.getTransactionsByDateBetween(start, end);
     }
 
-    @GetMapping("/generate-report/monthly")
-    public ResponseEntity<TransactionReport> getMonthlyTransactionReport() {
-        return ResponseEntity.ok(transactionService.generateMonthlyReport());
+    @DeleteMapping("/{id}")
+    public void deleteTransaction(@PathVariable Long id) {
+        transactionService.deleteTransaction(id);
     }
-
-    @GetMapping("/generate-report/yearly")
-    public ResponseEntity<TransactionReport> getYearlyTransactionReport() {
-        return ResponseEntity.ok(transactionService.generateYearlyReport());
-    }
-
-    @GetMapping("/generate-report/{date}")
-    public ResponseEntity<TransactionReport> getSpecificDateTransactionReport(@PathVariable LocalDate date) {
-        return ResponseEntity.ok(transactionService.generateSpecificDateReport(date));
-    }
-
 
 }

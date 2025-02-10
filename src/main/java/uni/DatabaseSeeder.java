@@ -19,6 +19,7 @@ import uni.simulatedpos.repository.MenuProductCategoryRepository;
 import uni.simulatedpos.repository.MenuProductRepository;
 import uni.simulatedpos.repository.TransactionRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -124,10 +125,10 @@ public class DatabaseSeeder {
                 .orElseThrow(() -> new IllegalStateException("Category not found"));
 
         List<MenuProduct> products = List.of(
-                new MenuProduct("Kawa Americano 300ml", "Espresso z dodatkiem wrzątku", hotCoffeeCategory, 14.0, 1),
-                new MenuProduct("Cappuccino 300ml", "Espresso z mlekiem i pianką", hotCoffeeCategory, 12.0, 1),
-                new MenuProduct("Latte Macchiato 400ml", "Espresso z dużą ilością mleka", hotCoffeeCategory, 14.0, 1),
-                new MenuProduct("Herbata Zimowa", "Herbata czarna z dodatkiem imbiru, goździków i pomarańczy", otherDrinkCategory, 14.0, 1)
+                new MenuProduct("Kawa Americano 300ml", "Espresso z dodatkiem wrzątku", hotCoffeeCategory, BigDecimal.valueOf(14.0), 1),
+                new MenuProduct("Cappuccino 300ml", "Espresso z mlekiem i pianką", hotCoffeeCategory, BigDecimal.valueOf(12.0), 1),
+                new MenuProduct("Latte Macchiato 400ml", "Espresso z dużą ilością mleka", hotCoffeeCategory, BigDecimal.valueOf(14.0), 1),
+                new MenuProduct("Herbata Zimowa", "Herbata czarna z dodatkiem imbiru, goździków i pomarańczy", otherDrinkCategory, BigDecimal.valueOf(14.0), 1)
         );
 
         menuProductRepository.saveAll(products);

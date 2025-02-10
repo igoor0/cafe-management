@@ -2,6 +2,7 @@ package uni.cafemanagement.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uni.cafemanagement.dto.ProductCategoryDTO;
 import uni.cafemanagement.model.ProductCategory;
 import uni.cafemanagement.service.ProductCategoryService;
 
@@ -18,17 +19,17 @@ public class ProductCategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductCategory>> getAllCategories() {
+    public ResponseEntity<List<ProductCategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(productCategoryService.getAllCategories());
     }
 
     @PostMapping
-    public ResponseEntity<ProductCategory> createCategory(@RequestBody ProductCategory productCategory) {
+    public ResponseEntity<ProductCategoryDTO> createCategory(@RequestBody ProductCategoryDTO productCategory) {
         return ResponseEntity.ok(productCategoryService.createCategory(productCategory));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductCategory> updateCategory(@PathVariable Long id, @RequestBody ProductCategory productCategory) {
+    public ResponseEntity<ProductCategoryDTO> updateCategory(@PathVariable Long id, @RequestBody ProductCategoryDTO productCategory) {
         return ResponseEntity.ok(productCategoryService.updateCategory(id, productCategory));
     }
 

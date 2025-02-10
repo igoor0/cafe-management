@@ -5,26 +5,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
 public class TransactionProduct {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private String name;
-    private String description;
-    private double price;
-    private int quantity;
-    @ManyToOne(optional = false)
-    private MenuProductCategory category;
 
-    public TransactionProduct(String name, String description, double price, int quantity, MenuProductCategory category) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "menu_product_id")
+    private MenuProduct menuProduct;
+
+    private int quantity;
+    private BigDecimal price;
+
+    public TransactionProduct(MenuProduct menuProduct, int quantity) {
+        this.menuProduct = menuProduct;
         this.quantity = quantity;
-        this.category = category;
+        this.price = menuProduct.getPrice();
     }
+
 }

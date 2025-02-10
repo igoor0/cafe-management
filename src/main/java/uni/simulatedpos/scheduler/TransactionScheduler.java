@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uni.simulatedpos.model.*;
+import uni.simulatedpos.service.TransactionService;
 import uni.simulatedpos.repository.EmployeeRepository;
 import uni.simulatedpos.repository.MenuProductRepository;
-import uni.simulatedpos.repository.TransactionRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,60 +20,52 @@ public class TransactionScheduler {
 
     private final EmployeeRepository employeeRepository;
     private final MenuProductRepository menuProductRepository;
-    private final TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
     private final Random random = new Random();
 
     @Autowired
     public TransactionScheduler(EmployeeRepository employeeRepository,
                                 MenuProductRepository menuProductRepository,
-                                TransactionRepository transactionRepository) {
+                                TransactionService transactionService) {
         this.employeeRepository = employeeRepository;
         this.menuProductRepository = menuProductRepository;
-        this.transactionRepository = transactionRepository;
+        this.transactionService = transactionService;
     }
 
-    // Runs every 5 minutes
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 5000)
     public void generateRandomTransaction() {
-        List<Employee> employees = employeeRepository.findAll();
-        List<MenuProduct> menuProducts = menuProductRepository.findAll();
-
-        if (employees.isEmpty() || menuProducts.isEmpty()) {
-            System.out.println("Brak danych do wygenerowania transakcji.");
+        LocalTime currentTime = LocalTime.now();
+        if (currentTime.isBefore(LocalTime.of(10, 0)) || currentTime.isAfter(LocalTime.of(21, 30))) {
             return;
         }
 
-        Employee employee = employees.get(random.nextInt(employees.size()));
-        int productCount = random.nextInt(3) + 1;  // 1 to 3 products per transaction
-        List<TransactionProduct> transactionProducts = new ArrayList<>();
-        double totalAmount = 0.0;
+        int numberOfProducts = random.nextInt(3) + 1;
 
-        for (int i = 0; i < productCount; i++) {
-            MenuProduct product = menuProducts.get(random.nextInt(menuProducts.size()));
-            int quantity = random.nextInt(3) + 1;
-            totalAmount += product.getPrice() * quantity;
+        List<MenuProduct> menuProducts = menuProductRepository.findAll();
+        Transaction transaction = new Transaction();
 
-            TransactionProduct transactionProduct = new TransactionProduct(
-                    product.getName(),
-                    product.getDescription(),
-                    product.getPrice(),
-                    quantity,
-                    product.getCategory()
-            );
-            transactionProducts.add(transactionProduct);
-        }
+        List<Employee> employees = employeeRepository.findAll();
+        Employee randomEmployee = employees.get(random.nextInt(employees.size()));
+
+        transaction.setEmployee(randomEmployee);
+
+        LocalDate transactionDate = LocalDate.now();
+        transaction.setDate(transactionDate);
+
+        LocalTime transactionTime = LocalTime.now();
+        transaction.setTime(transactionTime);
 
         PaymentMethod paymentMethod = random.nextBoolean() ? PaymentMethod.CASH : PaymentMethod.CARD;
+        transaction.setPaymentMethod(paymentMethod);
 
-        Transaction transaction = new Transaction(
-                employee,
-                transactionProducts,
-                totalAmount,
-                paymentMethod,
-                LocalDate.now()
-        );
+        for (int i = 0; i < numberOfProducts; i++) {
+            MenuProduct menuProduct = menuProducts.get(random.nextInt(menuProducts.size()));
+            int quantity = random.nextInt(1) + 1;
 
-        transactionRepository.save(transaction);
-        System.out.println("Nowa transakcja została wygenerowana: " + transaction);
+            TransactionProduct transactionProduct = new TransactionProduct(menuProduct, quantity);
+            transaction.getProducts().add(transactionProduct);
+        }
+
+        transactionService.createTransaction(transaction);
     }
 }

@@ -5,8 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,20 +26,27 @@ public class Transaction {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "transaction_id")
-    private List<TransactionProduct> products;
+    private List<TransactionProduct> products = new ArrayList<>();
 
-    private double totalAmount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
     private LocalDate date;
+    private LocalTime time;
 
-    public Transaction(Employee employee, List<TransactionProduct> products, double totalAmount, PaymentMethod paymentMethod, LocalDate date) {
+    public Transaction(Employee employee, List<TransactionProduct> products, BigDecimal totalAmount, PaymentMethod paymentMethod, LocalDate date) {
         this.employee = employee;
         this.products = products;
         this.totalAmount = totalAmount;
         this.paymentMethod = paymentMethod;
         this.date = date;
+    }
+    public void calculateTotalAmount() {
+        totalAmount = products.stream()
+                .map(transactionProduct -> transactionProduct.getMenuProduct().getPrice()
+                        .multiply(BigDecimal.valueOf(transactionProduct.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

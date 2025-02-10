@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -20,12 +21,12 @@ public class MenuProduct {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private MenuProductCategory category;
-    private double price;
+    private BigDecimal price;
     private int quantity;
     @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuProductIngredient> ingredients;
 
-    public MenuProduct(String name, String description, MenuProductCategory category, double price, int quantity) {
+    public MenuProduct(String name, String description, MenuProductCategory category, BigDecimal price, int quantity) {
         this.name = name;
         this.description = description;
         this.category = category;
