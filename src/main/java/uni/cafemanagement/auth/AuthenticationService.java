@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uni.cafemanagement.config.JwtService;
 import uni.cafemanagement.exception.ApiRequestException;
+import uni.cafemanagement.model.Role;
 import uni.simulatedpos.model.Employee;
 import uni.cafemanagement.model.Manager;
 import uni.cafemanagement.model.User;
@@ -56,6 +57,7 @@ public class AuthenticationService {
         manager.setFirstName(request.getFirstname());
         manager.setLastName(request.getLastname());
         manager.setPassword(passwordEncoder.encode(request.getPassword()));
+        manager.setRole(Role.MANAGER);
 
         //TODO dodac pola odpowiednie dla managera
         userRepository.save(manager);
