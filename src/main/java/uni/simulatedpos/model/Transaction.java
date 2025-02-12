@@ -1,5 +1,7 @@
 package uni.simulatedpos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,7 +9,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,12 @@ public class Transaction {
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     private Employee employee;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "transaction_id")
+    @JsonManagedReference
     private List<TransactionProduct> products = new ArrayList<>();
 
     private BigDecimal totalAmount;

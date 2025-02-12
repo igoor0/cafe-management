@@ -1,5 +1,6 @@
 package uni.cafemanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class ProductCategory {
     private Long id;
     private String name;
     @OneToMany(mappedBy = "category")
+    @JsonBackReference
     private List<InventoryProduct> products;
 
     public ProductCategory(String name) {

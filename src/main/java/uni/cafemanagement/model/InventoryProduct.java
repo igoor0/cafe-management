@@ -1,5 +1,6 @@
 package uni.cafemanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class InventoryProduct {
     private String description;
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonManagedReference
     private ProductCategory category;
     private double price;
     private boolean isCountable;

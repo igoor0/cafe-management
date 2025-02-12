@@ -4,14 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uni.simulatedpos.model.*;
-import uni.simulatedpos.service.TransactionService;
 import uni.simulatedpos.repository.EmployeeRepository;
+import uni.simulatedpos.service.TransactionService;
 import uni.simulatedpos.repository.MenuProductRepository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -32,7 +30,7 @@ public class TransactionScheduler {
         this.transactionService = transactionService;
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 80000)
     public void generateRandomTransaction() {
         LocalTime currentTime = LocalTime.now();
         if (currentTime.isBefore(LocalTime.of(10, 0)) || currentTime.isAfter(LocalTime.of(21, 30))) {

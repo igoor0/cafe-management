@@ -1,14 +1,9 @@
 package uni.simulatedpos.model;
 
 import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import uni.cafemanagement.model.Role;
 import uni.cafemanagement.model.User;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

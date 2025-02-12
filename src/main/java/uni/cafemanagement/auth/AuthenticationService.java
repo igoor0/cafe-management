@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import uni.cafemanagement.config.JwtService;
 import uni.cafemanagement.exception.ApiRequestException;
 import uni.cafemanagement.model.Role;
-import uni.simulatedpos.model.Employee;
 import uni.cafemanagement.model.Manager;
 import uni.cafemanagement.model.User;
 import uni.cafemanagement.repository.ManagerRepository;
@@ -29,20 +28,20 @@ public class AuthenticationService {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ApiRequestException("User with email " + request.getEmail() + " already exists");
         }
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setFirstName(request.getFirstname());
-        user.setLastName(request.getLastname());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User employee = new User();
+        employee.setEmail(request.getEmail());
+        employee.setFirstName(request.getFirstname());
+        employee.setLastName(request.getLastname());
+        employee.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        userRepository.save(user);
+        userRepository.save(employee);
 
         var jwtToken = jwtService.generateToken(
-                user,
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getRole().toString());
+                employee,
+                employee.getId(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getRole().toString());
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -87,7 +86,7 @@ public class AuthenticationService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().toString()
-                );
+        );
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -112,6 +111,4 @@ public class AuthenticationService {
             throw new ApiRequestException("Old password is incorrect");
         }
     }
-
-
 }

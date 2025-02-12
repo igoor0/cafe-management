@@ -1,5 +1,6 @@
 package uni.simulatedpos.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,9 @@ public class TransactionProduct {
 
     private int quantity;
     private BigDecimal price;
+    @ManyToOne
+    @JsonBackReference
+    private Transaction transaction;
 
     public TransactionProduct(MenuProduct menuProduct, int quantity) {
         this.menuProduct = menuProduct;

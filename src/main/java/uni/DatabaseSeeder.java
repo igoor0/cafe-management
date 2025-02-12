@@ -1,7 +1,6 @@
 package uni;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import uni.cafemanagement.auth.AuthenticationService;
@@ -20,18 +19,13 @@ import uni.simulatedpos.repository.MenuProductRepository;
 import uni.simulatedpos.repository.TransactionRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static uni.cafemanagement.model.InventoryProduct.createNonCountableInventoryProduct;
 
 @Component
 public class DatabaseSeeder {
 
-    private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmployeeRepository employeeRepository;
@@ -39,11 +33,9 @@ public class DatabaseSeeder {
     private final MenuProductCategoryRepository menuProductCategoryRepository;
     private final InventoryProductRepository inventoryProductRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final TransactionRepository transactionRepository;
 
     @Autowired
     public DatabaseSeeder(AuthenticationService authenticationService, UserRepository userRepository, PasswordEncoder passwordEncoder, EmployeeRepository employeeRepository, MenuProductRepository menuProductRepository, MenuProductCategoryRepository menuProductCategoryRepository, InventoryProductRepository inventoryProductRepository, ProductCategoryRepository productCategoryRepository, TransactionRepository transactionRepository) {
-        this.authenticationService = authenticationService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.employeeRepository = employeeRepository;
@@ -51,7 +43,6 @@ public class DatabaseSeeder {
         this.menuProductCategoryRepository = menuProductCategoryRepository;
         this.inventoryProductRepository = inventoryProductRepository;
         this.productCategoryRepository = productCategoryRepository;
-        this.transactionRepository = transactionRepository;
     }
 
     public void initializeAdminAccount() {

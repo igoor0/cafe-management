@@ -2,7 +2,6 @@ package uni.cafemanagement.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uni.cafemanagement.dto.InventoryProductDTO;
 import uni.cafemanagement.model.InventoryProduct;
 import uni.cafemanagement.service.InventoryService;
 
@@ -19,22 +18,22 @@ public class InventoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<InventoryProductDTO>> getAllInventoryProducts() {
+    public ResponseEntity<List<InventoryProduct>> getAllInventoryProducts() {
         return ResponseEntity.ok(inventoryService.getAllInventoryProducts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InventoryProductDTO> getInventoryProductById(@PathVariable Long id) {
+    public ResponseEntity<InventoryProduct> getInventoryProductById(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryService.getInventoryProductById(id));
     }
 
     @PostMapping
-    public ResponseEntity<InventoryProductDTO> addInventoryProduct(@RequestBody InventoryProduct inventoryProduct) {
+    public ResponseEntity<InventoryProduct> addInventoryProduct(@RequestBody InventoryProduct inventoryProduct) {
         return ResponseEntity.ok(inventoryService.addInventoryProduct(inventoryProduct));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InventoryProductDTO> updateInventoryProduct(@PathVariable Long id, @RequestBody InventoryProduct updatedProduct) {
+    public ResponseEntity<InventoryProduct> updateInventoryProduct(@PathVariable Long id, @RequestBody InventoryProduct updatedProduct) {
         return ResponseEntity.ok(inventoryService.updateInventoryProduct(id, updatedProduct));
     }
 

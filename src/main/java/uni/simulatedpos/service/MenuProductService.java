@@ -1,0 +1,90 @@
+package uni.simulatedpos.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uni.cafemanagement.model.InventoryProduct;
+import uni.cafemanagement.repository.InventoryProductRepository;
+import uni.simulatedpos.dto.MenuProductDTO;
+import uni.simulatedpos.dto.MenuProductIngredientDTO;
+import uni.simulatedpos.model.MenuProduct;
+import uni.simulatedpos.model.MenuProductCategory;
+import uni.simulatedpos.model.MenuProductIngredient;
+import uni.simulatedpos.repository.MenuProductCategoryRepository;
+import uni.simulatedpos.repository.MenuProductRepository;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class MenuProductService {
+
+    private final MenuProductRepository menuProductRepository;
+    private final MenuProductCategoryRepository menuProductCategoryRepository;
+    private final InventoryProductRepository inventoryProductRepository;
+
+    @Autowired
+    public MenuProductService(MenuProductRepository menuProductRepository, MenuProductCategoryRepository menuProductCategoryRepository, InventoryProductRepository inventoryProductRepository) {
+        this.menuProductRepository = menuProductRepository;
+        this.menuProductCategoryRepository = menuProductCategoryRepository;
+        this.inventoryProductRepository = inventoryProductRepository;
+    }
+
+    public List<MenuProduct> getAllProducts() {
+        return menuProductRepository.findAll();
+    }
+
+    public MenuProduct getProductById(Long id) {
+        return menuProductRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+    }
+
+    public MenuProduct createProduct(MenuProductDTO menuProductDTO) {
+        MenuProductCategory category = menuProductCategoryRepository.findById(menuProductDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        MenuProduct newProduct = new MenuProduct(
+                menuProductDTO.getName(),
+                menuProductDTO.getDescription(),
+                category,
+                BigDecimal.valueOf(menuProductDTO.getPrice()),
+                menuProductDTO.getQuantity(),
+                new ArrayList<>()
+        );
+
+        return menuProductRepository.save(newProduct);
+    }
+    public MenuProduct addIngredientsToProduct(Long productId, List<MenuProductIngredientDTO> ingredientDTOs) {
+        MenuProduct product = menuProductRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        List<MenuProductIngredient> ingredients = ingredientDTOs.stream()
+                .map(dto -> {
+                    InventoryProduct inventoryProduct = inventoryProductRepository.findById(dto.getInventoryProductId())
+                            .orElseThrow(() -> new RuntimeException("Inventory product not found"));
+                    return new MenuProductIngredient(inventoryProduct, dto.getQuantity());
+                })
+                .collect(Collectors.toList());
+
+        product.getIngredients().addAll(ingredients);
+
+        return menuProductRepository.save(product);
+    }
+
+    public MenuProduct updateProduct(Long id, MenuProduct updatedProduct) {
+        MenuProduct existingProduct = menuProductRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+
+        existingProduct.setName(updatedProduct.getName());
+        existingProduct.setDescription(updatedProduct.getDescription());
+        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setQuantity(updatedProduct.getQuantity());
+
+        return menuProductRepository.save(existingProduct);
+    }
+
+    public void deleteProduct(Long id) {
+        menuProductRepository.deleteById(id);
+    }
+}

@@ -1,5 +1,6 @@
 package uni.simulatedpos.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class MenuProductCategory {
     private Long id;
     private String name;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<MenuProduct> products = new ArrayList<>();
 
     public MenuProductCategory(String name) {

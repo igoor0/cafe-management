@@ -23,11 +23,9 @@ public class MenuProductIngredient {
     @JoinColumn(name = "inventory_product_id")
     private InventoryProduct inventoryProduct;
 
-    // Ilość składnika potrzebna na jedną porcję (w gramach lub sztukach)
     private double quantity;
 
-    public MenuProductIngredient(MenuProduct menuProduct, InventoryProduct inventoryProduct, double quantity) {
-        this.menuProduct = menuProduct;
+    public MenuProductIngredient( InventoryProduct inventoryProduct, double quantity) {
         this.inventoryProduct = inventoryProduct;
         this.quantity = quantity;
     }
