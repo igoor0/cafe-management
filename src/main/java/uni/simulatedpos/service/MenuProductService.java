@@ -79,13 +79,13 @@ public class MenuProductService {
         return menuProductRepository.save(product);
     }
 
-    public MenuProduct updateProduct(Long id, MenuProduct updatedProduct) {
+    public MenuProduct updateProduct(Long id, MenuProductDTO updatedProduct) {
         MenuProduct existingProduct = menuProductRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
 
         existingProduct.setName(updatedProduct.getName());
         existingProduct.setDescription(updatedProduct.getDescription());
-        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setPrice(BigDecimal.valueOf(updatedProduct.getPrice()));
         existingProduct.setQuantity(updatedProduct.getQuantity());
 
         return menuProductRepository.save(existingProduct);

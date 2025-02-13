@@ -42,7 +42,7 @@ public class MenuProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MenuProduct> updateProduct(
-            @PathVariable Long id, @RequestBody MenuProduct updatedProduct) {
+            @PathVariable Long id, @RequestBody MenuProductDTO updatedProduct) {
         MenuProduct product = menuProductService.updateProduct(id, updatedProduct);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
