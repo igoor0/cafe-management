@@ -33,14 +33,14 @@ public class MenuProductCategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<MenuProductCategory> createCategory(@RequestBody MenuProductCategory menuProductCategory) {
+    public ResponseEntity<MenuProductCategory> createCategory(@RequestBody String menuProductCategory) {
         MenuProductCategory createdCategory = menuProductCategoryService.createCategory(menuProductCategory);
         return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<MenuProductCategory> updateCategory(
-            @PathVariable Long id, @RequestBody MenuProductCategory updatedCategory) {
+            @PathVariable Long id, @RequestBody String updatedCategory) {
         MenuProductCategory category = menuProductCategoryService.updateCategory(id, updatedCategory);
         return new ResponseEntity<>(category, HttpStatus.OK);
     }

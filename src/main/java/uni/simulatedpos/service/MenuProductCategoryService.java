@@ -26,15 +26,15 @@ public class MenuProductCategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
     }
 
-    public MenuProductCategory createCategory(MenuProductCategory menuProductCategory) {
-        return menuProductCategoryRepository.save(menuProductCategory);
+    public MenuProductCategory createCategory(String menuProductCategory) {
+        return menuProductCategoryRepository.save(new MenuProductCategory(menuProductCategory));
     }
 
-    public MenuProductCategory updateCategory(Long id, MenuProductCategory updatedCategory) {
+    public MenuProductCategory updateCategory(Long id, String updatedCategoryName) {
         MenuProductCategory existingCategory = menuProductCategoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
 
-        existingCategory.setName(updatedCategory.getName());
+        existingCategory.setName(updatedCategoryName);
 
         return menuProductCategoryRepository.save(existingCategory);
     }
