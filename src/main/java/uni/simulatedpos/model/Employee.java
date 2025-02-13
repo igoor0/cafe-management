@@ -11,6 +11,7 @@ import uni.cafemanagement.model.User;
 @NoArgsConstructor
 public class Employee extends User {
     private String position;
+    private String phoneNumber;
 
     public Employee(String username, String password, String firstName, String lastName, String position) {
         super(username, password, firstName, lastName);
