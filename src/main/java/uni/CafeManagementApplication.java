@@ -30,9 +30,8 @@ public class CafeManagementApplication {
             databaseSeeder.initializeAdminAccount();
             databaseSeeder.initializeEmployeesAccount();
             databaseSeeder.initializeProductCategories();
-            databaseSeeder.initializeInventoryProducts();
             databaseSeeder.initializeMenuProductCategories();
-            databaseSeeder.initializeMenuProducts();
+            databaseSeeder.InitializeProducts();
 //            databaseSeeder.initializeSampleTransactions();
         };
     }

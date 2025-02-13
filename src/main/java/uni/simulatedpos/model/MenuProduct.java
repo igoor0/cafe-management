@@ -46,4 +46,10 @@ public class MenuProduct {
     public void addIngredient(InventoryProduct inventoryProduct, double quantity) {
         this.ingredients.put(inventoryProduct, quantity);
     }
+
+    public BigDecimal calculateIngredientCost() {
+        return ingredients.entrySet().stream()
+                .map(entry -> BigDecimal.valueOf(entry.getKey().getPricePerUnit() * entry.getValue()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

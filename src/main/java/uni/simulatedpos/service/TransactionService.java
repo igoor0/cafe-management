@@ -71,37 +71,35 @@ public class TransactionService {
 
             for (Map.Entry<InventoryProduct, Double> entry : menuProduct.getIngredients().entrySet()) {
                 InventoryProduct ingredient = entry.getKey();
-                double ingredientQuantity = entry.getValue() * quantity;
+                double requiredQuantity = entry.getValue() * quantity;
 
-                if (ingredient.isCountable()) {
-                    double updatedQuantity = ingredient.getQuantity() - ingredientQuantity;
-
-                    if (updatedQuantity < 0) {
-                        throw new IllegalArgumentException("Not enough inventory for countable ingredient: " + ingredient.getName());
-                    }
-
-                    ingredient.setQuantity(updatedQuantity);
-
-                    if (ingredient.isLowStock()) {
-                        createInventoryAlert(ingredient, "Low stock alert for ingredient: " + ingredient.getName());
-                    }
-                } else {
-                    double updatedWeight = ingredient.getWeightInGrams() - ingredientQuantity;
-
-                    if (updatedWeight < 0) {
-                        throw new IllegalArgumentException("Not enough inventory for non-countable ingredient: " + ingredient.getName());
-                    }
-
-                    ingredient.setWeightInGrams(updatedWeight);
-
-                    if (ingredient.isLowStock()) {
-                        createInventoryAlert(ingredient, "Low stock alert for ingredient (weight): " + ingredient.getName());
-                    }
+                if (!updateInventoryStock(ingredient, requiredQuantity)) {
+                    createInventoryAlert(ingredient, "Brak wystarczającej ilości: " + ingredient.getName());
                 }
 
                 inventoryProductRepository.save(ingredient);
             }
         }
+    }
+
+
+    private boolean updateInventoryStock(InventoryProduct ingredient, double requiredQuantity) {
+        if (ingredient.isCountable()) {
+            if (ingredient.getQuantity() < requiredQuantity) {
+                return false; // Brak wystarczającej ilości
+            }
+            ingredient.setQuantity(ingredient.getQuantity() - requiredQuantity);
+        } else {
+            if (ingredient.getWeightInGrams() < requiredQuantity) {
+                return false; // Brak wystarczającej ilości
+            }
+            ingredient.setWeightInGrams(ingredient.getWeightInGrams() - requiredQuantity);
+        }
+
+        if (ingredient.isLowStock()) {
+            createInventoryAlert(ingredient, "⚠️ Niski poziom zapasów: " + ingredient.getName());
+        }
+        return true;
     }
 
     // Metoda do tworzenia alertu

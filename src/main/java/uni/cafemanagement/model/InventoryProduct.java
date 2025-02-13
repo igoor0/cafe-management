@@ -22,43 +22,48 @@ public class InventoryProduct {
     @JsonManagedReference
     private ProductCategory category;
     private double price;
+    private double pricePerUnit;
     private boolean isCountable;
     private double quantity;
     private double weightInGrams;
     private double minimalValue;
 
-    public InventoryProduct(String name, String description, ProductCategory category, double price, double weightInGrams, double minimalValue) {
+    private InventoryProduct(String name, String description, ProductCategory category, double price, double pricePerUnit, double weightInGrams, double minimalValue) {
         this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
+        this.pricePerUnit = pricePerUnit;
         this.isCountable = false;
         this.weightInGrams = weightInGrams;
         this.minimalValue = minimalValue;
     }
 
-    public InventoryProduct(String name, String description, ProductCategory category, double price, int quantity, double minimalValue) {
+    private InventoryProduct(String name, String description, ProductCategory category, double price, double pricePerUnit, int quantity, double minimalValue) {
         this.name = name;
         this.description = description;
         this.category = category;
         this.price = price;
+        this.pricePerUnit = pricePerUnit;
         this.isCountable = true;
         this.quantity = quantity;
         this.minimalValue = minimalValue;
     }
 
     public static InventoryProduct createCountableInventoryProduct(String name, String description, ProductCategory category, double price, int quantity, double minimalValue) {
-        if (quantity < 0) {
-            throw new ApiRequestException("Produkt policzalny musi mieć nieujemną ilość sztuk!");
+        if (quantity <= 0) {
+            throw new ApiRequestException("Produkt policzalny musi mieć ilość większą niż 0!");
         }
-        return new InventoryProduct(name, description, category, price, quantity, minimalValue);
+        double pricePerUnit = price / quantity;
+        return new InventoryProduct(name, description, category, price, pricePerUnit, quantity, minimalValue);
     }
 
     public static InventoryProduct createNonCountableInventoryProduct(String name, String description, ProductCategory category, double price, double weightInGrams, double minimalValue) {
-        if (weightInGrams < 0) {
-            throw new ApiRequestException("Produkt niepoliczalny musi mieć nieujemną wagę!");
+        if (weightInGrams <= 0) {
+            throw new ApiRequestException("Produkt niepoliczalny musi mieć wagę większą niż 0!");
         }
-        return new InventoryProduct(name, description, category, price, weightInGrams, minimalValue);
+        double pricePerUnit = price / weightInGrams;
+        return new InventoryProduct(name, description, category, price, pricePerUnit, weightInGrams, minimalValue);
     }
 
     public boolean isLowStock() {
@@ -67,5 +72,10 @@ public class InventoryProduct {
         } else {
             return weightInGrams <= minimalValue;
         }
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

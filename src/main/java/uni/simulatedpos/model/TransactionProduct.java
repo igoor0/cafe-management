@@ -24,6 +24,7 @@ public class TransactionProduct {
 
     private int quantity;
     private BigDecimal price;
+    private BigDecimal ingredientCostAtPurchase;
     @ManyToOne
     @JsonBackReference
     private Transaction transaction;

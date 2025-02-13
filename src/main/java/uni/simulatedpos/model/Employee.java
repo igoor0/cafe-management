@@ -13,9 +13,11 @@ public class Employee extends User {
     private String position;
     private String phoneNumber;
 
-    public Employee(String username, String password, String firstName, String lastName, String position) {
+    public Employee(String username, String password, String firstName, String lastName, String position, String phoneNumber) {
         super(username, password, firstName, lastName);
         this.setRole(Role.USER);
         this.position = position;
+        this.phoneNumber = phoneNumber;
     }
+
 }
