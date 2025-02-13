@@ -8,11 +8,14 @@ import uni.cafemanagement.model.InventoryProduct;
 import uni.cafemanagement.repository.InventoryProductRepository;
 import uni.simulatedpos.model.*;
 import uni.simulatedpos.repository.EmployeeRepository;
+import uni.simulatedpos.repository.InventoryAlertRepository;
 import uni.simulatedpos.repository.MenuProductRepository;
 import uni.simulatedpos.repository.TransactionRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TransactionService {
@@ -21,16 +24,18 @@ public class TransactionService {
     private final EmployeeRepository employeeRepository;
     private final MenuProductRepository menuProductRepository;
     private final InventoryProductRepository inventoryProductRepository;
+    private final InventoryAlertRepository inventoryAlertRepository;
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository,
                               EmployeeRepository employeeRepository,
                               MenuProductRepository menuProductRepository,
-                              InventoryProductRepository inventoryProductRepository) {
+                              InventoryProductRepository inventoryProductRepository, InventoryAlertRepository inventoryAlertRepository) {
         this.transactionRepository = transactionRepository;
         this.employeeRepository = employeeRepository;
         this.menuProductRepository = menuProductRepository;
         this.inventoryProductRepository = inventoryProductRepository;
+        this.inventoryAlertRepository = inventoryAlertRepository;
     }
 
     public List<Transaction> getAllTransactions() {
@@ -57,39 +62,57 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction createTransaction(Transaction transaction) {
+    public void createTransaction(Transaction transaction) {
+        transactionRepository.save(transaction);
+
         for (TransactionProduct transactionProduct : transaction.getProducts()) {
-            MenuProduct menuProduct = menuProductRepository.findById(transactionProduct.getMenuProduct().getId())
-                    .orElseThrow(() -> new ApiRequestException("Menu product not found with ID: " + transactionProduct.getMenuProduct().getId()));
+            MenuProduct menuProduct = transactionProduct.getMenuProduct();
+            int quantity = transactionProduct.getQuantity();
 
-            for (MenuProductIngredient ingredient : menuProduct.getIngredients()) {
-                InventoryProduct inventoryProduct = inventoryProductRepository.findById(ingredient.getInventoryProduct().getId())
-                        .orElseThrow(() -> new ApiRequestException("Inventory product not found with ID: " + ingredient.getInventoryProduct().getId()));
+            for (Map.Entry<InventoryProduct, Double> entry : menuProduct.getIngredients().entrySet()) {
+                InventoryProduct ingredient = entry.getKey();
+                double ingredientQuantity = entry.getValue() * quantity;
 
-                double requiredQuantity = ingredient.getQuantity() * transactionProduct.getQuantity();
+                if (ingredient.isCountable()) {
+                    double updatedQuantity = ingredient.getQuantity() - ingredientQuantity;
 
-                if ((inventoryProduct.isCountable() && inventoryProduct.getQuantity() < requiredQuantity) ||
-                        (!inventoryProduct.isCountable() && inventoryProduct.getWeightInGrams() < requiredQuantity)) {
-                    throw new ApiRequestException("Not enough ingredients for product: " + inventoryProduct.getName());
-                }
+                    if (updatedQuantity < 0) {
+                        throw new IllegalArgumentException("Not enough inventory for countable ingredient: " + ingredient.getName());
+                    }
 
-                if (inventoryProduct.isCountable()) {
-                    inventoryProduct.setQuantity(inventoryProduct.getQuantity() - requiredQuantity);
+                    ingredient.setQuantity(updatedQuantity);
+
+                    // Sprawdzenie, czy zapas spadł poniżej minimalnego progu
+                    if (ingredient.isLowStock()) {
+                        createInventoryAlert(ingredient, "Low stock alert for ingredient: " + ingredient.getName());
+                    }
                 } else {
-                    inventoryProduct.setWeightInGrams(inventoryProduct.getWeightInGrams() - requiredQuantity);
+                    double updatedWeight = ingredient.getWeightInGrams() - ingredientQuantity;
+
+                    if (updatedWeight < 0) {
+                        throw new IllegalArgumentException("Not enough inventory for non-countable ingredient: " + ingredient.getName());
+                    }
+
+                    ingredient.setWeightInGrams(updatedWeight);
+
+                    // Sprawdzenie, czy zapas wagi spadł poniżej minimalnego progu
+                    if (ingredient.isLowStock()) {
+                        createInventoryAlert(ingredient, "Low stock alert for ingredient (weight): " + ingredient.getName());
+                    }
                 }
 
-                inventoryProductRepository.save(inventoryProduct);
+                inventoryProductRepository.save(ingredient);
             }
         }
-        transaction.calculateTotalAmount();
-
-        return transactionRepository.save(transaction);
     }
 
-    public void deleteTransaction(Long id) {
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new ApiRequestException("Transaction not found with ID: " + id));
-        transactionRepository.delete(transaction);
+    // Metoda do tworzenia alertu
+    private void createInventoryAlert(InventoryProduct ingredient, String message) {
+        // Zapisz alert w systemie, lub wyślij powiadomienie
+        InventoryAlert alert = new InventoryAlert();
+        alert.setIngredient(ingredient);
+        alert.setMessage(message);
+        alert.setTimestamp(LocalDateTime.now());
+        inventoryAlertRepository.save(alert);
     }
 }

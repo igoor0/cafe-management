@@ -5,10 +5,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uni.cafemanagement.model.InventoryProduct;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -26,17 +29,10 @@ public class MenuProduct {
     private MenuProductCategory category;
     private BigDecimal price;
     private int quantity;
-    @OneToMany(mappedBy = "menuProduct", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MenuProductIngredient> ingredients;
-
-    public MenuProduct(String name, String description, MenuProductCategory category, BigDecimal price, int quantity,  List<MenuProductIngredient> ingredients) {
-        this.name = name;
-        this.description = description;
-        this.category = category;
-        this.price = price;
-        this.quantity = quantity;
-        this.ingredients = ingredients;
-    }
+    @ElementCollection(fetch = FetchType.EAGER)  // Zmieniamy na EAGER loading
+    @MapKeyJoinColumn(name = "inventory_product_id")
+    @Column(name = "quantity")
+    private Map<InventoryProduct, Double> ingredients;
 
     public MenuProduct(String name, String description, MenuProductCategory category, BigDecimal price, int quantity) {
         this.name = name;
@@ -44,6 +40,10 @@ public class MenuProduct {
         this.category = category;
         this.price = price;
         this.quantity = quantity;
-        this.ingredients = new ArrayList<>();
+        this.ingredients = new HashMap<>();
+    }
+
+    public void addIngredient(InventoryProduct inventoryProduct, double quantity) {
+        this.ingredients.put(inventoryProduct, quantity);
     }
 }

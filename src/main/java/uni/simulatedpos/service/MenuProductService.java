@@ -1,5 +1,6 @@
 package uni.simulatedpos.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uni.cafemanagement.model.InventoryProduct;
@@ -8,7 +9,6 @@ import uni.simulatedpos.dto.MenuProductDTO;
 import uni.simulatedpos.dto.MenuProductIngredientDTO;
 import uni.simulatedpos.model.MenuProduct;
 import uni.simulatedpos.model.MenuProductCategory;
-import uni.simulatedpos.model.MenuProductIngredient;
 import uni.simulatedpos.repository.MenuProductCategoryRepository;
 import uni.simulatedpos.repository.MenuProductRepository;
 
@@ -49,25 +49,26 @@ public class MenuProductService {
                 menuProductDTO.getDescription(),
                 category,
                 BigDecimal.valueOf(menuProductDTO.getPrice()),
-                menuProductDTO.getQuantity(),
-                new ArrayList<>()
+                menuProductDTO.getQuantity()
         );
 
         return menuProductRepository.save(newProduct);
     }
+
+    @Transactional
     public MenuProduct addIngredientsToProduct(Long productId, List<MenuProductIngredientDTO> ingredientDTOs) {
         MenuProduct product = menuProductRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        List<MenuProductIngredient> ingredients = ingredientDTOs.stream()
-                .map(dto -> {
-                    InventoryProduct inventoryProduct = inventoryProductRepository.findById(dto.getInventoryProductId())
-                            .orElseThrow(() -> new RuntimeException("Inventory product not found"));
-                    return new MenuProductIngredient(inventoryProduct, dto.getQuantity());
-                })
-                .collect(Collectors.toList());
+        if (product.getIngredients() != null) {
+            product.getIngredients().size();
+        }
 
-        product.getIngredients().addAll(ingredients);
+        for (MenuProductIngredientDTO dto : ingredientDTOs) {
+            InventoryProduct inventoryProduct = inventoryProductRepository.findById(dto.getInventoryProductId())
+                    .orElseThrow(() -> new RuntimeException("Inventory product not found"));
+            product.addIngredient(inventoryProduct, dto.getQuantity());
+        }
 
         return menuProductRepository.save(product);
     }

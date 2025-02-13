@@ -10,6 +10,7 @@ import uni.simulatedpos.repository.MenuProductRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -30,7 +31,7 @@ public class TransactionScheduler {
         this.transactionService = transactionService;
     }
 
-    @Scheduled(fixedRate = 80000)
+    @Scheduled(fixedRate = 5000)
     public void generateRandomTransaction() {
         LocalTime currentTime = LocalTime.now();
         if (currentTime.isBefore(LocalTime.of(10, 0)) || currentTime.isAfter(LocalTime.of(21, 30))) {
@@ -56,13 +57,19 @@ public class TransactionScheduler {
         PaymentMethod paymentMethod = random.nextBoolean() ? PaymentMethod.CASH : PaymentMethod.CARD;
         transaction.setPaymentMethod(paymentMethod);
 
+        List<TransactionProduct> transactionProducts = new ArrayList<>();
+
         for (int i = 0; i < numberOfProducts; i++) {
             MenuProduct menuProduct = menuProducts.get(random.nextInt(menuProducts.size()));
             int quantity = random.nextInt(1) + 1;
 
             TransactionProduct transactionProduct = new TransactionProduct(menuProduct, quantity);
-            transaction.getProducts().add(transactionProduct);
+            transactionProducts.add(transactionProduct);
         }
+
+        transaction.setProducts(transactionProducts);
+
+        transaction.calculateTotalAmount();
 
         transactionService.createTransaction(transaction);
     }

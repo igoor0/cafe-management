@@ -43,9 +43,9 @@ public class TransactionController {
         return transactionService.getTransactionsByDateBetween(start, end);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteTransaction(@PathVariable Long id) {
-        transactionService.deleteTransaction(id);
-    }
+//    @DeleteMapping("/{id}")
+//    public void deleteTransaction(@PathVariable Long id) {
+//        transactionService.deleteTransaction(id);
+//    }
 
 }

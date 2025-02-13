@@ -13,6 +13,8 @@ public interface InventoryProductRepository extends JpaRepository<InventoryProdu
 
     Optional<InventoryProduct> findById(Long productId);
 
+    Optional<InventoryProduct> findByName(String name);
+
     boolean existsById(Long id);
 
     void deleteById(Long id);

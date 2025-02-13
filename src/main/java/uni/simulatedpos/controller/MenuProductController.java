@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uni.simulatedpos.dto.MenuProductDTO;
+import uni.simulatedpos.dto.MenuProductIngredientDTO;
 import uni.simulatedpos.model.MenuProduct;
 import uni.simulatedpos.service.MenuProductService;
 
@@ -50,5 +51,13 @@ public class MenuProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         menuProductService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{productId}/add-ingredients")
+    public ResponseEntity<MenuProduct> addIngredientsToProduct(
+            @PathVariable Long productId,
+            @RequestBody List<MenuProductIngredientDTO> ingredientDTOs) {
+        MenuProduct updatedProduct = menuProductService.addIngredientsToProduct(productId, ingredientDTOs);
+        return ResponseEntity.ok(updatedProduct);
     }
 }

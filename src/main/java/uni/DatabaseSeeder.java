@@ -89,9 +89,9 @@ public class DatabaseSeeder {
         ProductCategory milkCategory = productCategoryRepository.findByName("Milk").orElseThrow(() -> new ApiRequestException("Category Not Found"));
         ProductCategory coffeeCategory = productCategoryRepository.findByName("Coffee").orElseThrow(() -> new ApiRequestException("Category Not Found"));
 
-        InventoryProduct coffeeBeans = createNonCountableInventoryProduct("Ziarna kawy", "Jutowy worek kawy w ziarnach", coffeeCategory, 450, 8000);
-        InventoryProduct milk = createNonCountableInventoryProduct("Mleko", "Mleko krowie 3,2%", milkCategory, 2.5, 12000);
-        InventoryProduct oatMilk = createNonCountableInventoryProduct("Oatly", "Mleko roślinne owsiane 2,2%", milkCategory, 4.30, 12000);
+        InventoryProduct coffeeBeans = createNonCountableInventoryProduct("Ziarna kawy", "Jutowy worek kawy w ziarnach", coffeeCategory, 450, 8000, 1000);
+        InventoryProduct milk = createNonCountableInventoryProduct("Mleko", "Mleko krowie 3,2%", milkCategory, 2.5, 12000, 2000);
+        InventoryProduct oatMilk = createNonCountableInventoryProduct("Oatly", "Mleko roślinne owsiane 2,2%", milkCategory, 4.30, 12000, 2000);
         inventoryProductRepository.saveAll(List.of(coffeeBeans, milk, oatMilk));
     }
 
@@ -115,13 +115,19 @@ public class DatabaseSeeder {
         MenuProductCategory otherDrinkCategory = menuProductCategoryRepository.findByName("Inne napoje")
                 .orElseThrow(() -> new IllegalStateException("Category not found"));
 
-        List<MenuProduct> products = List.of(
-                new MenuProduct("Kawa Americano 300ml", "Espresso z dodatkiem wrzątku", hotCoffeeCategory, BigDecimal.valueOf(14.0), 1),
-                new MenuProduct("Cappuccino 300ml", "Espresso z mlekiem i pianką", hotCoffeeCategory, BigDecimal.valueOf(12.0), 1),
-                new MenuProduct("Latte Macchiato 400ml", "Espresso z dużą ilością mleka", hotCoffeeCategory, BigDecimal.valueOf(14.0), 1),
-                new MenuProduct("Herbata Zimowa", "Herbata czarna z dodatkiem imbiru, goździków i pomarańczy", otherDrinkCategory, BigDecimal.valueOf(14.0), 1)
-        );
+        InventoryProduct coffeeBeans = inventoryProductRepository.findByName("Ziarna kawy")
+                .orElseThrow(() -> new IllegalStateException("Inventory product not found"));
+        InventoryProduct milk = inventoryProductRepository.findByName("Mleko")
+                .orElseThrow(() -> new IllegalStateException("Inventory product not found"));
 
-        menuProductRepository.saveAll(products);
+        MenuProduct americano = new MenuProduct("Kawa Americano 300ml", "Espresso z dodatkiem wrzątku", hotCoffeeCategory, BigDecimal.valueOf(14.0), 1);
+        americano.addIngredient(coffeeBeans, 18);
+        americano.addIngredient(milk, 250);
+
+        MenuProduct cappuccino = new MenuProduct("Cappuccino 300ml", "Espresso z mlekiem i pianką", hotCoffeeCategory, BigDecimal.valueOf(12.0), 1);
+        cappuccino.addIngredient(coffeeBeans, 18);
+        cappuccino.addIngredient(milk, 250);
+
+        menuProductRepository.saveAll(List.of(americano, cappuccino));
     }
 }
