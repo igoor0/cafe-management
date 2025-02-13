@@ -109,11 +109,19 @@ public class InventoryService {
         return inventoryProductRepository.save(existingProduct);
     }
 
+    @Transactional
     public void deleteInventoryProduct(Long id) {
-        if (!inventoryProductRepository.existsById(id)) {
-            throw new ApiRequestException("InventoryProduct not found with ID: " + id);
+        InventoryProduct product = inventoryProductRepository.findById(id)
+                .orElseThrow(() -> new ApiRequestException("InventoryProduct not found with ID: " + id));
+
+        boolean isUsed = menuProductRepository.findAll().stream()
+                .anyMatch(menuProduct -> menuProduct.getIngredients().containsKey(product));
+
+        if (isUsed) {
+            throw new ApiRequestException("Cannot delete InventoryProduct because it is used in a MenuProduct.");
         }
-        inventoryProductRepository.deleteById(id);
+
+        inventoryProductRepository.delete(product);
     }
 
     public void updateInventoryProductQuantity(Long productId, int quantity) {
@@ -123,7 +131,6 @@ public class InventoryService {
         inventoryProductRepository.save(product);
     }
 
-    // Metody do monitorowania stanów magazynowych
     public List<InventoryProduct> getLowStockProducts() {
         return inventoryProductRepository.findByQuantityLessThan(10.0);
     }
