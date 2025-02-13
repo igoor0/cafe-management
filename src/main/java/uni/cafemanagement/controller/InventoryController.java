@@ -34,8 +34,8 @@ public class InventoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InventoryProduct> updateInventoryProduct(@PathVariable Long id, @RequestBody InventoryProduct updatedProduct) {
-        return ResponseEntity.ok(inventoryService.updateInventoryProduct(id, updatedProduct));
+    public ResponseEntity<InventoryProduct> updateInventoryProduct(@PathVariable Long id, @RequestBody InventoryProductDTO updatedProductDTO) {
+        return ResponseEntity.ok(inventoryService.updateInventoryProduct(id, updatedProductDTO));
     }
 
     @DeleteMapping("/{id}")

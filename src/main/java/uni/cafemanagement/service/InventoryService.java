@@ -82,14 +82,29 @@ public class InventoryService {
     }
 
     @Transactional
-    public InventoryProduct updateInventoryProduct(Long id, InventoryProduct updatedProduct) {
+    public InventoryProduct updateInventoryProduct(Long id, InventoryProductDTO updatedProductDTO) {
         InventoryProduct existingProduct = inventoryProductRepository.findById(id)
                 .orElseThrow(() -> new ApiRequestException("InventoryProduct not found with ID: " + id));
 
-        existingProduct.setName(updatedProduct.getName());
-        existingProduct.setQuantity(updatedProduct.getQuantity());
-        existingProduct.setPrice(updatedProduct.getPrice());
-        existingProduct.setCategory(updatedProduct.getCategory());
+        if (updatedProductDTO.getCategoryId() != null) {
+            ProductCategory category = productCategoryRepository.findById(updatedProductDTO.getCategoryId())
+                    .orElseThrow(() -> new ApiRequestException("Category not found with ID: " + updatedProductDTO.getCategoryId()));
+            existingProduct.setCategory(category);
+        }
+
+        existingProduct.setName(updatedProductDTO.getName());
+        existingProduct.setPrice(updatedProductDTO.getPrice());
+        existingProduct.setMinimalValue(updatedProductDTO.getMinimalValue());
+
+        if (updatedProductDTO.isCountable()) {
+            existingProduct.setQuantity(updatedProductDTO.getQuantity());
+            existingProduct.setWeightInGrams(0);
+            existingProduct.setCountable(true);
+        } else {
+            existingProduct.setWeightInGrams(updatedProductDTO.getWeightInGrams());
+            existingProduct.setQuantity(0);
+            existingProduct.setCountable(false);
+        }
 
         return inventoryProductRepository.save(existingProduct);
     }
