@@ -82,7 +82,6 @@ public class TransactionService {
 
                     ingredient.setQuantity(updatedQuantity);
 
-                    // Sprawdzenie, czy zapas spadł poniżej minimalnego progu
                     if (ingredient.isLowStock()) {
                         createInventoryAlert(ingredient, "Low stock alert for ingredient: " + ingredient.getName());
                     }
@@ -95,7 +94,6 @@ public class TransactionService {
 
                     ingredient.setWeightInGrams(updatedWeight);
 
-                    // Sprawdzenie, czy zapas wagi spadł poniżej minimalnego progu
                     if (ingredient.isLowStock()) {
                         createInventoryAlert(ingredient, "Low stock alert for ingredient (weight): " + ingredient.getName());
                     }

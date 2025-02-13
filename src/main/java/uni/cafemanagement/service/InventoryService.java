@@ -2,9 +2,12 @@ package uni.cafemanagement.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import uni.cafemanagement.dto.InventoryProductDTO;
 import uni.cafemanagement.exception.ApiRequestException;
 import uni.cafemanagement.model.InventoryProduct;
+import uni.cafemanagement.model.ProductCategory;
 import uni.cafemanagement.repository.InventoryProductRepository;
+import uni.cafemanagement.repository.ProductCategoryRepository;
 import uni.simulatedpos.model.MenuProduct;
 import uni.simulatedpos.repository.MenuProductRepository;
 import uni.simulatedpos.repository.TransactionRepository;
@@ -17,13 +20,15 @@ public class InventoryService {
     private final MenuProductRepository menuProductRepository;
     private final InventoryProductRepository inventoryProductRepository;
     private final TransactionRepository transactionRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
     public InventoryService(MenuProductRepository menuProductRepository,
                             InventoryProductRepository inventoryProductRepository,
-                            TransactionRepository transactionRepository) {
+                            TransactionRepository transactionRepository, ProductCategoryRepository productCategoryRepository) {
         this.menuProductRepository = menuProductRepository;
         this.inventoryProductRepository = inventoryProductRepository;
         this.transactionRepository = transactionRepository;
+        this.productCategoryRepository = productCategoryRepository;
     }
 
     public List<MenuProduct> getAllMenuProducts() {
@@ -47,7 +52,32 @@ public class InventoryService {
                 .orElseThrow(() -> new ApiRequestException("InventoryProduct not found with ID: " + id));
     }
 
-    public InventoryProduct addInventoryProduct(InventoryProduct inventoryProduct) {
+    @Transactional
+    public InventoryProduct addInventoryProduct(InventoryProductDTO inventoryProductDTO) {
+        ProductCategory category = productCategoryRepository.findById(inventoryProductDTO.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        InventoryProduct inventoryProduct;
+        if (inventoryProductDTO.isCountable()) {
+            inventoryProduct = InventoryProduct.createCountableInventoryProduct(
+                    inventoryProductDTO.getName(),
+                    inventoryProductDTO.getDescription(),
+                    category,
+                    inventoryProductDTO.getPrice(),
+                    (int) inventoryProductDTO.getQuantity(),
+                    inventoryProductDTO.getMinimalValue()
+            );
+        } else {
+            inventoryProduct = InventoryProduct.createNonCountableInventoryProduct(
+                    inventoryProductDTO.getName(),
+                    inventoryProductDTO.getDescription(),
+                    category,
+                    inventoryProductDTO.getPrice(),
+                    inventoryProductDTO.getWeightInGrams(),
+                    inventoryProductDTO.getMinimalValue()
+            );
+        }
+
         return inventoryProductRepository.save(inventoryProduct);
     }
 

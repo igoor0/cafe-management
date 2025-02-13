@@ -2,6 +2,7 @@ package uni.cafemanagement.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uni.cafemanagement.dto.InventoryProductDTO;
 import uni.cafemanagement.model.InventoryProduct;
 import uni.cafemanagement.service.InventoryService;
 
@@ -28,8 +29,8 @@ public class InventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<InventoryProduct> addInventoryProduct(@RequestBody InventoryProduct inventoryProduct) {
-        return ResponseEntity.ok(inventoryService.addInventoryProduct(inventoryProduct));
+    public ResponseEntity<InventoryProduct> addInventoryProduct(@RequestBody InventoryProductDTO inventoryProductDTO) {
+        return ResponseEntity.ok(inventoryService.addInventoryProduct(inventoryProductDTO));
     }
 
     @PutMapping("/{id}")
