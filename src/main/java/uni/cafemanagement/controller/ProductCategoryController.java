@@ -23,13 +23,13 @@ public class ProductCategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductCategory> createCategory(@RequestBody ProductCategory productCategory) {
-        return ResponseEntity.ok(productCategoryService.createCategory(productCategory));
+    public ResponseEntity<ProductCategory> createCategory(@RequestBody String productCategoryName) {
+        return ResponseEntity.ok(productCategoryService.createCategory(productCategoryName));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductCategory> updateCategory(@PathVariable Long id, @RequestBody ProductCategory productCategory) {
-        return ResponseEntity.ok(productCategoryService.updateCategory(id, productCategory));
+    public ResponseEntity<ProductCategory> updateCategory(@PathVariable Long id, @RequestBody String productCategoryName) {
+        return ResponseEntity.ok(productCategoryService.updateCategory(id, productCategoryName));
     }
 
     @DeleteMapping("/{id}")

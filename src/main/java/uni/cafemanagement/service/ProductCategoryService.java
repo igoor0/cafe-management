@@ -19,15 +19,15 @@ public class ProductCategoryService {
         return productCategoryRepository.findAll();
     }
 
-    public ProductCategory createCategory(ProductCategory productCategory) {
-        return productCategoryRepository.save(productCategory);
+    public ProductCategory createCategory(String productCategoryName) {
+        return productCategoryRepository.save(new ProductCategory(productCategoryName));
     }
 
-    public ProductCategory updateCategory(Long id, ProductCategory productCategory) {
+    public ProductCategory updateCategory(Long id, String productCategory) {
         ProductCategory existingCategory = productCategoryRepository.findById(id)
                 .orElseThrow(() -> new ApiRequestException("Category not found with ID: " + id));
 
-        existingCategory.setName(productCategory.getName());
+        existingCategory.setName(productCategory);
 
         return productCategoryRepository.save(existingCategory);
     }
