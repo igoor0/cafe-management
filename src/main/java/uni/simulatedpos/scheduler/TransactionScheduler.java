@@ -31,7 +31,7 @@ public class TransactionScheduler {
         this.transactionService = transactionService;
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 80000)
     public void generateRandomTransaction() {
         LocalTime currentTime = LocalTime.now();
         if (currentTime.isBefore(LocalTime.of(10, 0)) || currentTime.isAfter(LocalTime.of(21, 30))) {

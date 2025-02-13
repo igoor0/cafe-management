@@ -14,6 +14,7 @@ import uni.simulatedpos.repository.MenuProductRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,14 +61,19 @@ public class MenuProductService {
         MenuProduct product = menuProductRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (product.getIngredients() != null) {
-            product.getIngredients().size();
+        if (product.getIngredients() == null) {
+            product.setIngredients(new HashMap<>());
         }
 
         for (MenuProductIngredientDTO dto : ingredientDTOs) {
             InventoryProduct inventoryProduct = inventoryProductRepository.findById(dto.getInventoryProductId())
                     .orElseThrow(() -> new RuntimeException("Inventory product not found"));
-            product.addIngredient(inventoryProduct, dto.getQuantity());
+
+            if (product.getIngredients().containsKey(inventoryProduct)) {
+                product.getIngredients().compute(inventoryProduct, (k, existingQuantity) -> existingQuantity + dto.getQuantity());
+            } else {
+                product.getIngredients().put(inventoryProduct, dto.getQuantity());
+            }
         }
 
         return menuProductRepository.save(product);

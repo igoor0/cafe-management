@@ -63,9 +63,9 @@ public class InventoryProduct {
 
     public boolean isLowStock() {
         if (isCountable) {
-            return quantity <= minimalValue; // Dla produktów policzalnych
+            return quantity <= minimalValue;
         } else {
-            return weightInGrams <= minimalValue; // Dla produktów niepoliczalnych
+            return weightInGrams <= minimalValue;
         }
     }
 }
