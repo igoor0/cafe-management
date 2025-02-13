@@ -1,11 +1,13 @@
 package uni.cafemanagement.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uni.simulatedpos.model.Transaction;
 import uni.simulatedpos.service.TransactionService;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -20,32 +22,38 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<Transaction> getAllTransactions() {
-        return transactionService.getAllTransactions();
+    public ResponseEntity<List<Transaction>> getAllTransactions() {
+        List<Transaction> transactions = transactionService.getAllTransactions();
+        return transactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactions);
     }
 
     @GetMapping("/{id}")
-    public Transaction getTransactionById(@PathVariable Long id) {
-        return transactionService.getTransactionById(id);
+    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
+        return ResponseEntity.ok(transactionService.getTransactionById(id));
     }
 
     @GetMapping("/date")
-    public List<Transaction> getTransactionsByDate(@RequestParam("date") String date) {
-        LocalDate parsedDate = LocalDate.parse(date);
-        return transactionService.getTransactionsByDate(parsedDate);
+    public ResponseEntity<List<Transaction>> getTransactionsByDate(@RequestParam("date") String date) {
+        try {
+            LocalDate parsedDate = LocalDate.parse(date);
+            List<Transaction> transactions = transactionService.getTransactionsByDate(parsedDate);
+            return transactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactions);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @GetMapping("/date-range")
-    public List<Transaction> getTransactionsByDateRange(@RequestParam("startDate") String startDate,
-                                                        @RequestParam("endDate") String endDate) {
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
-        return transactionService.getTransactionsByDateBetween(start, end);
+    public ResponseEntity<List<Transaction>> getTransactionsByDateRange(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        try {
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            List<Transaction> transactions = transactionService.getTransactionsByDateBetween(start, end);
+            return transactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactions);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
-
-//    @DeleteMapping("/{id}")
-//    public void deleteTransaction(@PathVariable Long id) {
-//        transactionService.deleteTransaction(id);
-//    }
-
 }
