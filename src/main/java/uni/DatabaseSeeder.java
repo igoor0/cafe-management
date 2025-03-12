@@ -187,7 +187,7 @@ public class DatabaseSeeder {
         flatWhite.addIngredient(milk, 250.0);
         flatWhite.addIngredient(mediumTakeawayCup, 1.0);
 
-        // 🥶 Espresso Tonic
+        // Espresso Tonic
         MenuProduct espressoTonic = new MenuProduct("Espresso Tonic", "Espresso + tonik + lód", icedCoffeeCategory, BigDecimal.valueOf(17), 1);
         espressoTonic.addIngredient(coffeeBeans, 18.0);
 //        espressoTonic.addIngredient(tonic, 250.0);

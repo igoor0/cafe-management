@@ -27,11 +27,11 @@ public class CafeManagementApplication {
     @Bean
     public CommandLineRunner initDatabase() {
         return args -> {
-            databaseSeeder.initializeAdminAccount();
-            databaseSeeder.initializeEmployeesAccount();
-            databaseSeeder.initializeProductCategories();
-            databaseSeeder.initializeMenuProductCategories();
-            databaseSeeder.InitializeProducts();
+//            databaseSeeder.initializeAdminAccount();
+//            databaseSeeder.initializeEmployeesAccount();
+//            databaseSeeder.initializeProductCategories();
+//            databaseSeeder.initializeMenuProductCategories();
+//            databaseSeeder.InitializeProducts();
 //            databaseSeeder.initializeSampleTransactions();
         };
     }
